@@ -6,6 +6,8 @@
 
 
 
+
+
 import SwiftUI
 
 struct DietView: View {
@@ -22,7 +24,7 @@ struct DietView: View {
                         macrosSummaryCard(plan: plan)
                         daySelectorScroll(plan: plan)
                         if let day = dietVM.selectedDay {
-                            VStack(spacing: 12) {
+                            VStack(spacing: 16) {
                                 ForEach(day.meals) { meal in
                                     MealCard(meal: meal, isLogged: dietVM.isMealLogged(meal), lm: lm) {
                                         dietVM.toggleMealLogged(meal)
@@ -52,7 +54,6 @@ struct DietView: View {
                 MealPlanPickerView(lm: lm).environmentObject(dietVM)
             }
         }
-
     }
 
     func macrosSummaryCard(plan: MealPlan) -> some View {
@@ -70,9 +71,7 @@ struct DietView: View {
             }
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(lm.isArabic
-                         ? "اليوم: \(dietVM.todayCaloriesConsumed) سعرة"
-                         : "Today: \(dietVM.todayCaloriesConsumed) kcal")
+                    Text(lm.isArabic ? "اليوم: \(dietVM.todayCaloriesConsumed) سعرة" : "Today: \(dietVM.todayCaloriesConsumed) kcal")
                         .font(.caption).foregroundColor(.secondary)
                     Spacer()
                     Text("\(Int(dietVM.calorieProgress * 100))%").font(.caption).bold()
@@ -84,8 +83,7 @@ struct DietView: View {
                             .fill(LinearGradient(colors: [.green, .mint], startPoint: .leading, endPoint: .trailing))
                             .frame(width: geo.size.width * dietVM.calorieProgress, height: 10)
                     }
-                }
-                .frame(height: 10)
+                }.frame(height: 10)
             }
             HStack(spacing: 12) {
                 MacroBar(label: lm.t(.protein), value: plan.proteinGrams, unit: "g", color: .red)
@@ -93,7 +91,10 @@ struct DietView: View {
                 MacroBar(label: lm.t(.fats),    value: plan.fatGrams,     unit: "g", color: .yellow)
             }
         }
-        .padding().background(Color(.secondarySystemGroupedBackground)).cornerRadius(16).padding(.horizontal)
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(16)
+        .padding(.horizontal)
     }
 
     func daySelectorScroll(plan: MealPlan) -> some View {
@@ -117,6 +118,7 @@ struct DietView: View {
     }
 }
 
+// MARK: - Macro Bar
 struct MacroBar: View {
     let label: String; let value: Int; let unit: String; let color: Color
     var body: some View {
@@ -127,74 +129,185 @@ struct MacroBar: View {
             }
             Text("\(value)\(unit)").font(.subheadline).bold()
         }
-        .frame(maxWidth: .infinity).padding(.vertical, 10).background(color.opacity(0.1)).cornerRadius(10)
+        .frame(maxWidth: .infinity).padding(.vertical, 10)
+        .background(color.opacity(0.1)).cornerRadius(10)
     }
 }
 
+// MARK: - Meal Card with Real Photo
 struct MealCard: View {
-    let meal: Meal; let isLogged: Bool; let lm: LanguageManager; let onToggle: () -> Void
+    let meal: Meal
+    let isLogged: Bool
+    let lm: LanguageManager
+    let onToggle: () -> Void
     @State private var isExpanded = false
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Button(action: { withAnimation(.spring()) { isExpanded.toggle() } }) {
-                HStack(spacing: 12) {
-                    Image(systemName: meal.type.icon).font(.title3).foregroundColor(meal.type.color)
-                        .frame(width: 36, height: 36).background(meal.type.color.opacity(0.12)).cornerRadius(10)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(meal.type.rawValue).font(.caption).foregroundColor(.secondary)
-                        Text(meal.name).font(.headline).foregroundColor(.primary)
-                    }
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text("\(meal.calories) kcal").font(.subheadline).bold()
-                        Text("\(Int(meal.proteinGrams))g \(lm.t(.protein))").font(.caption).foregroundColor(.secondary)
-                    }
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down").foregroundColor(.secondary).font(.caption)
-                }
-                .padding()
-            }
-            if isExpanded {
-                Divider()
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(meal.description).font(.subheadline).foregroundColor(.secondary)
-                    HStack(spacing: 16) {
-                        MiniMacro(label: lm.t(.carbs), value: "\(Int(meal.carbGrams))g", color: .orange)
-                        MiniMacro(label: lm.t(.fats),  value: "\(Int(meal.fatGrams))g",  color: .yellow)
-                        MiniMacro(label: lm.t(.prepTime), value: "\(meal.prepTimeMinutes) \(lm.t(.min))", color: .blue)
-                    }
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(lm.t(.ingredients)).font(.subheadline).bold()
-                        ForEach(meal.ingredients, id: \.self) { ing in
-                            HStack { Circle().fill(Color.green).frame(width: 5, height: 5); Text(ing).font(.caption) }
+        VStack(spacing: 0) {
+
+            // ── Real Food Photo ──────────────────────────────────
+            ZStack(alignment: .bottom) {
+                MealImageView(mealName: meal.name, height: 200)
+                    .frame(maxWidth: .infinity)
+
+                // Dark gradient for text readability
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.75)],
+                    startPoint: .center,
+                    endPoint: .bottom
+                )
+                .frame(height: 200)
+
+                // Meal info overlay
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        HStack(spacing: 5) {
+                            Image(systemName: meal.type.icon)
+                                .font(.caption2)
+                                .foregroundColor(meal.type.color)
+                            Text(meal.type.rawValue)
+                                .font(.caption).bold()
+                                .foregroundColor(meal.type.color)
+                        }
+                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .background(Color.black.opacity(0.45))
+                        .cornerRadius(8)
+
+                        Spacer()
+
+                        if isLogged {
+                            HStack(spacing: 4) {
+                                Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
+                                Text(lm.t(.logged)).font(.caption).bold().foregroundColor(.green)
+                            }
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(Color.black.opacity(0.45))
+                            .cornerRadius(8)
                         }
                     }
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(lm.t(.preparation)).font(.subheadline).bold()
-                        ForEach(Array(meal.prepInstructions.enumerated()), id: \.offset) { i, step in
-                            HStack(alignment: .top, spacing: 8) {
-                                Text("\(i+1).").font(.caption).bold().foregroundColor(.green)
-                                Text(step).font(.caption)
+
+                    Text(meal.name)
+                        .font(.title3).bold().foregroundColor(.white)
+
+                    HStack(spacing: 12) {
+                        Label("\(meal.calories) kcal", systemImage: "flame.fill")
+                            .font(.caption).foregroundColor(.orange)
+                        Label("\(Int(meal.proteinGrams))g \(lm.t(.protein))", systemImage: "bolt.fill")
+                            .font(.caption).foregroundColor(.yellow)
+                        Label("\(meal.prepTimeMinutes) \(lm.t(.min))", systemImage: "clock.fill")
+                            .font(.caption).foregroundColor(.white.opacity(0.8))
+                    }
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .frame(height: 200)
+            .cornerRadius(16, corners: isExpanded ? [.topLeft, .topRight] : .allCorners)
+            .clipped()
+
+            // ── Expand Button ────────────────────────────────────
+            Button(action: { withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { isExpanded.toggle() } }) {
+                HStack {
+                    Image(systemName: isExpanded ? "chevron.up.circle.fill" : "chevron.down.circle.fill")
+                        .foregroundColor(.green)
+                    Text(isExpanded
+                         ? (lm.isArabic ? "إخفاء التفاصيل" : "Hide details")
+                         : (lm.isArabic ? "عرض الوصفة والمكونات" : "Show recipe & ingredients"))
+                        .font(.subheadline).bold().foregroundColor(.green)
+                    Spacer()
+                    Text(lm.isArabic ? "\(meal.prepTimeMinutes) دقيقة تحضير" : "\(meal.prepTimeMinutes) min prep")
+                        .font(.caption).foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 14).padding(.vertical, 12)
+                .background(Color(.secondarySystemGroupedBackground))
+            }
+
+            // ── Expanded Recipe Section ──────────────────────────
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 16) {
+
+                    // Macro chips
+                    HStack(spacing: 10) {
+                        MacroChip(icon: "flame.fill",  color: .orange, label: lm.t(.carbs),   value: "\(Int(meal.carbGrams))g")
+                        MacroChip(icon: "drop.fill",   color: .yellow, label: lm.t(.fats),    value: "\(Int(meal.fatGrams))g")
+                        MacroChip(icon: "bolt.fill",   color: .red,    label: lm.t(.protein), value: "\(Int(meal.proteinGrams))g")
+                    }
+
+                    Divider()
+
+                    // Ingredients
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(lm.t(.ingredients), systemImage: "cart.fill")
+                            .font(.headline).foregroundColor(.primary)
+                        ForEach(meal.ingredients, id: \.self) { ing in
+                            HStack(alignment: .top, spacing: 10) {
+                                Image(systemName: "checkmark.circle")
+                                    .font(.caption).foregroundColor(.green).padding(.top, 2)
+                                Text(ing).font(.subheadline).foregroundColor(.secondary)
                             }
                         }
                     }
+
+                    Divider()
+
+                    // Prep steps
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label(lm.t(.preparation), systemImage: "flame.fill")
+                            .font(.headline).foregroundColor(.primary)
+                        ForEach(Array(meal.prepInstructions.enumerated()), id: \.offset) { i, step in
+                            HStack(alignment: .top, spacing: 12) {
+                                Text("\(i+1)")
+                                    .font(.caption2).bold()
+                                    .frame(width: 24, height: 24)
+                                    .background(Color.green)
+                                    .foregroundColor(.white)
+                                    .clipShape(Circle())
+                                Text(step).font(.subheadline).foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                    }
+
+                    // Log button
                     Button(action: onToggle) {
                         HStack {
-                            Image(systemName: isLogged ? "checkmark.circle.fill" : "circle")
-                            Text(isLogged ? lm.t(.logged) : lm.t(.markAsEaten)).font(.subheadline)
+                            Image(systemName: isLogged ? "checkmark.circle.fill" : "plus.circle.fill")
+                                .font(.title3)
+                            Text(isLogged ? lm.t(.logged) : lm.t(.markAsEaten))
+                                .font(.headline)
                         }
-                        .frame(maxWidth: .infinity).padding(10)
-                        .background(isLogged ? Color.green.opacity(0.15) : Color.green)
-                        .foregroundColor(isLogged ? .green : .white).cornerRadius(12)
+                        .frame(maxWidth: .infinity).padding(14)
+                        .background(isLogged
+                            ? LinearGradient(colors: [.green.opacity(0.2), .mint.opacity(0.15)], startPoint: .leading, endPoint: .trailing)
+                            : LinearGradient(colors: [.green, .mint], startPoint: .leading, endPoint: .trailing))
+                        .foregroundColor(isLogged ? .green : .white)
+                        .cornerRadius(14)
                     }
                 }
-                .padding()
+                .padding(16)
+                .background(Color(.secondarySystemGroupedBackground))
+                .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
             }
         }
-        .background(Color(.secondarySystemGroupedBackground)).cornerRadius(16)
-        .overlay(isLogged ? RoundedRectangle(cornerRadius: 16).stroke(Color.green.opacity(0.4), lineWidth: 1) : nil)
+        .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 5)
     }
 }
 
+// MARK: - Macro Chip
+struct MacroChip: View {
+    let icon: String; let color: Color; let label: String; let value: String
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: icon).font(.caption).foregroundColor(color)
+            Text(value).font(.subheadline).bold()
+            Text(label).font(.caption2).foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity).padding(.vertical, 10)
+        .background(color.opacity(0.1)).cornerRadius(12)
+    }
+}
+
+// MARK: - Mini Macro
 struct MiniMacro: View {
     let label: String; let value: String; let color: Color
     var body: some View {
@@ -202,10 +315,12 @@ struct MiniMacro: View {
             Text(value).font(.caption).bold()
             Text(label).font(.caption2).foregroundColor(.secondary)
         }
-        .padding(.horizontal, 10).padding(.vertical, 6).background(color.opacity(0.12)).cornerRadius(8)
+        .frame(maxWidth: .infinity).padding(.vertical, 8)
+        .background(color.opacity(0.12)).cornerRadius(8)
     }
 }
 
+// MARK: - Meal Plan Picker
 struct MealPlanPickerView: View {
     let lm: LanguageManager
     @EnvironmentObject var dietVM: DietViewModel
@@ -226,6 +341,8 @@ struct MealPlanPickerView: View {
                             Text(plan.dietaryPreference.localizedName(lm)).font(.caption).foregroundColor(.secondary)
                             Text("·")
                             Text("\(plan.dailyCalorieTarget) \(lm.t(.kcalDay))").font(.caption).foregroundColor(.secondary)
+                            Text("·")
+                            Text(plan.goal.localizedName(lm)).font(.caption).foregroundColor(plan.goal.color)
                         }
                     }
                     .padding(.vertical, 4)
@@ -242,5 +359,19 @@ struct MealPlanPickerView: View {
     }
 }
 
+// MARK: - Corner Radius Helper
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
 
-
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners,
+                                cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
+    }
+}

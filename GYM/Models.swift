@@ -5,6 +5,7 @@
 //  Created by Mohamed ahmed on 22/05/2026.
 
 
+
 import Foundation
 import SwiftUI
 
@@ -84,13 +85,15 @@ struct Exercise: Identifiable, Codable {
     var category: ExerciseCategory
     var muscleGroups: [MuscleGroup]
     var sets: Int
-    var reps: String // "12" or "8-12" or "60 sec"
+    var reps: String
     var restSeconds: Int
     var instructions: [String]
     var tips: String
     var difficulty: Difficulty
     var equipmentNeeded: [Equipment]
-    var gifName: String // asset name for animation
+    var gifName: String
+    var videoURL: String? = nil
+    var photoID: String? = nil  // Unique Pexels photo ID per exercise per plan
 }
 
 enum ExerciseCategory: String, CaseIterable, Codable {
@@ -249,7 +252,7 @@ enum MealType: String, CaseIterable, Codable {
 
     var icon: String {
         switch self {
-        case .breakfast: return "sunrise.fill"
+        case .breakfast: return "sun.rise.fill"
         case .morningSnack: return "apple.logo"
         case .lunch: return "fork.knife"
         case .afternoonSnack: return "cup.and.saucer.fill"
@@ -324,5 +327,3 @@ enum SubscriptionTier: String, CaseIterable {
         }
     }
 }
-
-
