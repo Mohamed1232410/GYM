@@ -311,11 +311,9 @@ struct WorkoutDayDetailView: View {
 
 // MARK: - Active Workout
 struct ActiveWorkoutView: View {
-    //  ...
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var workoutVM: WorkoutViewModel
     @EnvironmentObject var lm: LanguageManager
-    //  ...
     @Environment(\.presentationMode) var presentationMode
     @State private var currentExerciseIndex: Int = 0
     @State private var showingFinishAlert = false
