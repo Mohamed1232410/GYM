@@ -125,12 +125,6 @@ struct PaywallView: View {
             }
         }
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
-        
-//    دي كان فيها ايرور
-//        .onChange(of: subscriptionService.purchaseSuccess) { success in
-//            if success { dismiss() }
-        
-//        ودي مكانها
         .onChange(of: subscriptionService.purchaseSuccess) { oldValue, newValue in
             if newValue {
                 dismiss()

@@ -311,8 +311,12 @@ struct WorkoutDayDetailView: View {
 
 // MARK: - Active Workout
 struct ActiveWorkoutView: View {
+    //   دا تعديل من gemini
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var workoutVM: WorkoutViewModel
     @EnvironmentObject var lm: LanguageManager
+    //  تعديل دا من gemini
+    @Environment(\.presentationMode) var presentationMode
     @State private var currentExerciseIndex: Int = 0
     @State private var showingFinishAlert = false
     var session: WorkoutSession? { workoutVM.activeSession }
@@ -389,7 +393,11 @@ struct ActiveWorkoutView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(lm.t(.cancel)) { workoutVM.cancelWorkout() }
+                    Button(lm.t(.cancel)) {
+                        workoutVM.cancelWorkout()
+                        dismiss()
+                    }
+                    .foregroundColor(.red)
                 }
             }
             .alert(lm.t(.finishWorkoutQ), isPresented: $showingFinishAlert) {

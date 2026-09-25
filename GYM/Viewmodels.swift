@@ -6,6 +6,7 @@
 //
 
 
+
 import Foundation
 import SwiftUI
 import Combine
@@ -310,5 +311,3 @@ class DietViewModel: ObservableObject {
         return loggedMeals[today]?.contains(meal.id) ?? false
     }
 }
-
-
