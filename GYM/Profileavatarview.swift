@@ -5,6 +5,7 @@
 //  Created by Mohamed ahmed on 23/05/2026.
 
 
+
 import SwiftUI
 import PhotosUI
 
@@ -122,6 +123,7 @@ struct ProfilePhotoPickerView: View {
 // MARK: - UIImagePickerController wrapper
 struct LegacyImagePicker: UIViewControllerRepresentable {
     let sourceType: UIImagePickerController.SourceType
+    var allowsEditing: Bool = true
     let onImagePicked: (UIImage) -> Void
 
     func makeCoordinator() -> Coordinator { Coordinator(onImagePicked: onImagePicked) }
@@ -129,7 +131,7 @@ struct LegacyImagePicker: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.sourceType = UIImagePickerController.isSourceTypeAvailable(sourceType) ? sourceType : .photoLibrary
-        picker.allowsEditing = true   // built-in circular crop
+        picker.allowsEditing = allowsEditing
         picker.delegate = context.coordinator
         return picker
     }

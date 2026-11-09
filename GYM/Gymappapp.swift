@@ -7,6 +7,7 @@
 
 
 import SwiftUI
+import FirebaseCore
 
 @main
 struct GymAppApp: App {
@@ -16,7 +17,14 @@ struct GymAppApp: App {
     @StateObject private var themeManager = ThemeManager()
     @StateObject private var workoutVM = WorkoutViewModel()
     @StateObject private var dietVM = DietViewModel()
+    @StateObject private var authManager: FirebaseAuthManager
     @State private var showSplash = true
+
+    init() {
+        // Must run before anything touches FirebaseAuth
+        FirebaseApp.configure()
+        _authManager = StateObject(wrappedValue: FirebaseAuthManager())
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -28,6 +36,7 @@ struct GymAppApp: App {
                     .environmentObject(themeManager)
                     .environmentObject(workoutVM)
                     .environmentObject(dietVM)
+                    .environmentObject(authManager)
                     .preferredColorScheme(themeManager.current.colorScheme)
                     .id(languageManager.isArabic)
                     .environment(\.layoutDirection, languageManager.layoutDirection)

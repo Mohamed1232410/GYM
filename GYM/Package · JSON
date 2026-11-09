@@ -1,0 +1,10 @@
+{
+  "name": "fitbody-functions",
+  "private": true,
+  "main": "index.js",
+  "engines": { "node": "22" },
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "dependencies": {}
+}

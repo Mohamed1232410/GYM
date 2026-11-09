@@ -61,9 +61,13 @@ struct MainTabView: View {
                 .environmentObject(themeManager)
                 .tabItem { Label(lm.t(.profile), systemImage: "person.fill") }
                 .tag(4)
+
+            InBodyScannerView()
+                .environmentObject(lm)
+                .environmentObject(themeManager)
+                .tabItem { Label("InBody", systemImage: "waveform.path.ecg") }
+                .tag(5)
         }
         .tint(Color.green)
     }
 }
-
-

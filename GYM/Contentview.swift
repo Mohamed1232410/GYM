@@ -6,6 +6,7 @@
 
 
 
+
 import SwiftUI
 
 struct ContentView: View {
@@ -13,11 +14,16 @@ struct ContentView: View {
     @EnvironmentObject var userProfileVM: UserProfileViewModel
     @EnvironmentObject var lm: LanguageManager
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var auth: FirebaseAuthManager
     @State private var selectedTab: Int = 0
 
     var body: some View {
         Group {
-            if !userProfileVM.hasCompletedOnboarding {
+            if auth.needsVerification {
+                VerifyEmailView()
+            } else if !auth.isAuthenticated {
+                FirebaseLoginView()
+            } else if !userProfileVM.hasCompletedOnboarding {
                 OnboardingView()
                     .environmentObject(lm)
                     .environmentObject(themeManager)

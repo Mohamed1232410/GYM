@@ -5,6 +5,7 @@
 //  Created by Mohamed ahmed on 22/05/2026.
 
 
+
 import SwiftUI
 
 struct ProfileView: View {
@@ -12,6 +13,7 @@ struct ProfileView: View {
     @EnvironmentObject var subscriptionService: SubscriptionService
     @EnvironmentObject var lm: LanguageManager
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var auth: FirebaseAuthManager
     @State private var isEditing = false
     @State private var showingSubscription = false
     @State private var showingLogoutConfirm = false
@@ -204,6 +206,7 @@ struct ProfileView: View {
             .alert(lm.t(.logOutTitle), isPresented: $showingLogoutConfirm) {
                 Button(lm.t(.logOutConfirm), role: .destructive) {
                     userProfileVM.logout()
+                    auth.logout()
                 }
                 Button(lm.t(.cancel), role: .cancel) {}
             } message: {
