@@ -19,5 +19,5 @@
   <img src="./progress.jpg" width="220" alt="Progress Tracking Screen" />
   <img src="./inbody-upload.jpg" width="220" alt="InBody Upload Screen" />
   <img src="./inbody-analysis.jpg" width="220" alt="InBody AI Analysis Results" />
-  <img src="./profile.jpg" width="220" alt="Profile Screen" />
+  <img src="./profile1.jpg" width="220" alt="Profile Screen" />
 </p>
